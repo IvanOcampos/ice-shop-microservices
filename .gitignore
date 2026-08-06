@@ -1,0 +1,54 @@
+# ─────────────────────────────────────────
+# Environment — secrets del proyecto
+# ─────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─────────────────────────────────────────
+# Dependencies
+# ─────────────────────────────────────────
+node_modules/
+api-gateway/node_modules/
+service-productos/node_modules/
+service-inventario/node_modules/
+service-pedidos/node_modules/
+service-pagos/node_modules/
+
+# ─────────────────────────────────────────
+# Logs
+# ─────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+api-gateway/logs/
+service-productos/logs/
+service-inventario/logs/
+service-pedidos/logs/
+service-pagos/logs/
+
+# ─────────────────────────────────────────
+# Docker
+# ─────────────────────────────────────────
+docker-compose.override.yml
+
+# ─────────────────────────────────────────
+# OS
+# ─────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ─────────────────────────────────────────
+# IDEs
+# ─────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─────────────────────────────────────────
+# Temporales
+# ─────────────────────────────────────────
+*.zip
+*.tar.gz

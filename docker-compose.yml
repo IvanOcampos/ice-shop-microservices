@@ -1,0 +1,176 @@
+version: '3.8'
+
+services:
+
+  # ─────────────────────────────────────────
+  # API GATEWAY — único punto de entrada
+  # ─────────────────────────────────────────
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_SECRET: ${INTERNAL_SECRET}
+    depends_on:
+      - service-productos
+      - service-inventario
+      - service-pedidos
+      - service-pagos
+    networks:
+      - ice-network
+    restart: on-failure
+
+  # ─────────────────────────────────────────
+  # SERVICIO: Productos
+  # ─────────────────────────────────────────
+  service-productos:
+    build: ./service-productos
+    environment:
+      PORT: 3001
+      DB_HOST: db-productos
+      DB_NAME: productos_db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      INTERNAL_SECRET: ${INTERNAL_SECRET}
+    depends_on:
+      db-productos:
+        condition: service_healthy
+    networks:
+      - ice-network
+    restart: on-failure
+
+  db-productos:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: productos_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - data-productos:/var/lib/postgresql/data
+      - ./service-productos/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d productos_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ice-network
+
+  # ─────────────────────────────────────────
+  # SERVICIO: Inventario
+  # ─────────────────────────────────────────
+  service-inventario:
+    build: ./service-inventario
+    environment:
+      PORT: 3002
+      DB_HOST: db-inventario
+      DB_NAME: inventario_db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      INTERNAL_SECRET: ${INTERNAL_SECRET}
+    depends_on:
+      db-inventario:
+        condition: service_healthy
+    networks:
+      - ice-network
+    restart: on-failure
+
+  db-inventario:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: inventario_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - data-inventario:/var/lib/postgresql/data
+      - ./service-inventario/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d inventario_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ice-network
+
+  # ─────────────────────────────────────────
+  # SERVICIO: Pedidos
+  # ─────────────────────────────────────────
+  service-pedidos:
+    build: ./service-pedidos
+    environment:
+      PORT: 3003
+      DB_HOST: db-pedidos
+      DB_NAME: pedidos_db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      INTERNAL_SECRET: ${INTERNAL_SECRET}
+    depends_on:
+      db-pedidos:
+        condition: service_healthy
+    networks:
+      - ice-network
+    restart: on-failure
+
+  db-pedidos:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: pedidos_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - data-pedidos:/var/lib/postgresql/data
+      - ./service-pedidos/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d pedidos_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ice-network
+
+  # ─────────────────────────────────────────
+  # SERVICIO: Pagos
+  # ─────────────────────────────────────────
+  service-pagos:
+    build: ./service-pagos
+    environment:
+      PORT: 3004
+      DB_HOST: db-pagos
+      DB_NAME: pagos_db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      INTERNAL_SECRET: ${INTERNAL_SECRET}
+    depends_on:
+      db-pagos:
+        condition: service_healthy
+    networks:
+      - ice-network
+    restart: on-failure
+
+  db-pagos:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: pagos_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - data-pagos:/var/lib/postgresql/data
+      - ./service-pagos/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d pagos_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ice-network
+
+networks:
+  ice-network:
+    driver: bridge
+
+volumes:
+  data-productos:
+  data-inventario:
+  data-pedidos:
+  data-pagos:
